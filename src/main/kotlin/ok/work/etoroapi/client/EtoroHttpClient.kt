@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import ok.work.etoroapi.client.browser.EtoroMetadata
 import ok.work.etoroapi.client.browser.EtoroMetadataService
 import ok.work.etoroapi.model.EtoroHistoryPosition
 import ok.work.etoroapi.model.EtoroPositionEx
@@ -18,6 +19,7 @@ import ok.work.etoroapi.watchlist.Image
 import ok.work.etoroapi.watchlist.Watchlist
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
@@ -520,6 +522,7 @@ class EtoroHttpClient {
                 .header("sec-fetch-site", "same-origin")
                 .header("sec-fetch-mode", "cors")
                 .header("authorization", auth)
+                .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36")
                 .header("referer", "${credentials.baseUrl}/login")
                 .header("cookie", credentials.cookies)
     }
@@ -588,6 +591,7 @@ class EtoroHttpClient {
         val res = client.send(req, HttpResponse.BodyHandlers.ofString()).body()
         val transactionId = JSONObject(res).getString("Token")
     }
+
     fun prepareOkRequest(path: String, auth: String, mode: TradingMode, credentials: EtoroMetadata): Request.Builder {
         return Request.Builder().url("${credentials.baseUrl}/${path}")
                 .header("authority", credentials.domain)
@@ -601,10 +605,12 @@ class EtoroHttpClient {
                 .header("origin", credentials.baseUrl)
                 .header("sec-fetch-site", "same-origin")
                 .header("sec-fetch-mode", "cors")
+                .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36")
                 .header("authorization", auth)
                 .header("referer", "${credentials.baseUrl}/login")
                 .header("cookie", credentials.cookies)
     }
+
     fun deleteOrder(id: String, mode: TradingMode) {
         val req = prepareOkRequest("sapi/trade-${mode.name.toLowerCase()}/orders/$id?PositionID=$id&client_request_id=${userContext.requestId}",
                 userContext.exchangeToken, mode, metadataService.getMetadata())
@@ -616,4 +622,5 @@ class EtoroHttpClient {
             throw RuntimeException("Failed close order $id")
         }
     }
+
 }

@@ -40,12 +40,14 @@ class UserContext {
     }
 
     fun getAccountData(mode: TradingMode) {
-        val req = prepareRequest("api/logininfo/v1.1/logindata?" +
+        val req = prepareRequest("api/logindata/v1.1/logindata?" +
                 "client_request_id=${requestId}&conditionIncludeDisplayableInstruments=false&conditionIncludeMarkets=false&conditionIncludeMetadata=false&conditionIncludeMirrorValidation=false",
                 exchangeToken, mode, metadataService.getMetadata())
                 .GET()
                 .build()
-        val response = JSONObject(client.send(req, HttpResponse.BodyHandlers.ofString()).body())
+        var responseBody = client.send(req, HttpResponse.BodyHandlers.ofString()).body();
+        println(responseBody)
+        val response = JSONObject(responseBody)
                 .getJSONObject("AggregatedResult")
                 .getJSONObject("ApiResponses")
         userdata = response.getJSONObject("CurrentUserData").getJSONObject("Content").getJSONArray("users").getJSONObject(0)
